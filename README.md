@@ -1,5 +1,9 @@
 # VEdit
 
+
+https://github.com/user-attachments/assets/d0ab68b6-49f0-4d20-9d06-89072f13c5bb
+
+
 Claude ile Python'da (Pillow / NumPy / MoviePy / FFmpeg) üretilen videoları **oluşturmak,
 düzenlemek ve animasyonlandırmak** için masaüstü aracı.
 
