@@ -2,6 +2,7 @@
 import { S, on, emit, comp, compDuration, select, setTime, snapFrame, live, commit, fps,
   allKeyframeTimes, hasKeyframes, shiftKeyframes, selectedLayer } from './state.js';
 import * as api from './api.js';
+import { t } from './i18n.js';
 
 const HEAD_W = 150, RULER_H = 24, BAR_H = 5, ROW_H = 34, LANE_H = 22;
 const COLORS = {
@@ -28,7 +29,7 @@ export function initTimeline() {
   canvas.addEventListener('wheel', onWheel, { passive: false });
   canvas.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
   canvas.addEventListener('drop', onDrop);
-  ['project', 'select', 'time', 'mode', 'previewChunks'].forEach((ev) => on(ev, () => draw()));
+  ['project', 'select', 'time', 'mode', 'previewChunks', 'lang'].forEach((ev) => on(ev, () => draw()));
   resize();
 }
 
@@ -101,12 +102,12 @@ function laneKeyframes(row) {
 }
 
 function laneLabel(row) {
-  if (!row.prop) return 'keyframe yok — ◆ ile ekle';
+  if (!row.prop) return t('keyframe yok — ◆ ile ekle');
   if (row.prop.startsWith('fx:')) {
     const [, i, pk] = row.prop.split(':');
     return `${row.layer.effects[+i]?.type}.${pk}`;
   }
-  return PROP_LABEL[row.prop] || row.prop;
+  return t(PROP_LABEL[row.prop] || row.prop);
 }
 
 // ------------------------------------------------------------------ çizim
@@ -185,7 +186,7 @@ function paint() {
   for (const r of rows) {
     if (r.y + r.h < RULER_H || r.y > H) continue;
     ctx.fillStyle = r.kind === 'lane' ? '#ffd60a' : '#9a9aab';
-    const label = r.kind === 'lane' ? '   ◆ ' + laneLabel(r) : r.empty ? '+ yeni kanal' : (r.audio ? `A${r.track}` : `V${r.track}`);
+    const label = r.kind === 'lane' ? '   ◆ ' + laneLabel(r) : r.empty ? t('+ yeni kanal') : (r.audio ? `A${r.track}` : `V${r.track}`);
     ctx.fillText(label, 10, r.y + r.h / 2);
     ctx.fillStyle = '#26262f';
     ctx.fillRect(0, r.y + r.h - 1, HEAD_W, 1);
@@ -219,7 +220,7 @@ function paint() {
     ctx.fillRect(a, RULER_H, b - a - 1, BAR_H - 1);
   }
   ctx.fillStyle = '#9a9aab';
-  ctx.fillText(`${dur.toFixed(2)} sn`, 10, RULER_H / 2);
+  ctx.fillText(`${dur.toFixed(2)} ${t('sn')}`, 10, RULER_H / 2);
 
   // oynatma kafası
   const px = tToX(S.time);

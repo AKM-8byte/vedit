@@ -2,12 +2,14 @@
 import { S, on, comp, selectedLayer, commit, select, findLayer, flushSync } from './state.js';
 import { h, toast } from './ui.js';
 import * as api from './api.js';
+import { getLang } from './i18n.js';
 
 let root, scope = 'layer';
 
 export function initCode() {
   root = document.getElementById('codeview');
   on('mode', render);
+  on('lang', render);
   on('select', () => { if (S.mode === 'code') renderEditor(); });
 }
 
@@ -66,7 +68,15 @@ function renderChecks() {
   const path = S.path || 'projects/PROJE.vedit.json';
   out.append(
     h('div', { class: 'group-title' }, 'Claude ile çalışmak'),
-    h('div', { class: 'hint', html:
+    h('div', { class: 'hint', html: getLang() === 'en' ? `Example requests for Claude Code:<br>
+      • <i>"Make the title in ${path} bigger and give it a pop animation"</i><br>
+      • <i>"Make a 30-second montage from the videos in inbox, add music"</i><br>
+      • <i>"Create a 10-second matrix-themed intro"</i><br><br>
+      When Claude changes the file, a <b>reload</b> notice appears at the top.<br><br>
+      Commands:<br>
+      <span class="kbd">.venv/Scripts/vedit.exe preview ${path}</span><br>
+      <span class="kbd">.venv/Scripts/vedit.exe lint ${path}</span><br>
+      <span class="kbd">.venv/Scripts/vedit.exe render ${path} -p shorts</span>` :
       `Claude Code'a örnek istekler:<br>
       • <i>"${path} projesindeki başlığı daha büyük yap ve pop animasyonu ver"</i><br>
       • <i>"inbox'taki videolarla 30 saniyelik montaj yap, müzik ekle"</i><br>
@@ -89,7 +99,7 @@ async function runLint(out) {
   if (!res.issues.length) frag.append(h('div', { class: 'issue info lint-ok' }, '✓ Sorun bulunamadı'));
   for (const i of res.issues) {
     const m = /\((l_[0-9a-f]+)\)/.exec(i.where);
-    const el = h('div', { class: 'issue ' + i.level, style: m ? { cursor: 'pointer' } : {} }, h('small', {}, i.where), i.msg);
+    const el = h('div', { class: 'issue ' + i.level, style: m ? { cursor: 'pointer' } : {} }, h('small', { 'data-no-i18n': true }, i.where), i.msg);
     if (m) el.onclick = () => {
       const layer = findLayer(m[1]);
       if (!layer) return;

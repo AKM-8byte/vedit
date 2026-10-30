@@ -99,6 +99,25 @@ def get_state():
             "disk_mtime": S.disk_mtime, "root": str(ROOT)}
 
 
+SETTINGS_FILE = ROOT / ".vedit_settings.json"
+
+
+@app.get("/api/settings")
+def get_settings():
+    try:
+        return json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+@app.put("/api/settings")
+def put_settings(values: dict = Body(...)):
+    cur = get_settings()
+    cur.update({k: v for k, v in values.items() if k in ("lang",)})
+    SETTINGS_FILE.write_text(json.dumps(cur, ensure_ascii=False, indent=2), encoding="utf-8")
+    return cur
+
+
 @app.get("/api/about")
 def about():
     from .. import __author__, __copyright__, __license__, __version__

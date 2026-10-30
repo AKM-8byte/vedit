@@ -19,3 +19,6 @@ assets/*
 
 # Üretilen kare panoları
 *_sheet.png
+
+# Kişisel ayarlar (arayüz dili vb.)
+.vedit_settings.json

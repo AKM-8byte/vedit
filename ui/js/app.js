@@ -8,8 +8,14 @@ import { initViewer, togglePlay, stop, refreshStatus } from './viewer.js';
 import { initInspector, render as renderInspector } from './inspector.js';
 import { initLibrary } from './library.js';
 import { initCode } from './code.js';
+import { t, tConfirm, setLang, getLang, startObserver, translateAll, LANGS } from './i18n.js';
 
 async function boot() {
+  const settings = await api.get('/api/settings').catch(() => ({}));
+  setLang(settings.lang || (navigator.language || 'tr').slice(0, 2));
+  startObserver();
+  translateAll();
+  initLangSelect();
   S.lib = await api.get('/api/library');
   initTimeline();
   initViewer();
@@ -25,10 +31,28 @@ async function boot() {
   setInterval(autosave, 60000);
 }
 
+// ------------------------------------------------------------------ dil
+function initLangSelect() {
+  const sel = $('#langSel');
+  sel.innerHTML = '';
+  for (const [code, name] of Object.entries(LANGS)) {
+    sel.append(h('option', { value: code, 'data-no-i18n': true, selected: code === getLang() }, name));
+  }
+  sel.onchange = async () => {
+    setLang(sel.value);
+    await api.put('/api/settings', { lang: sel.value }).catch(() => null);
+    translateAll();
+    emit('lang');
+    updateTitle();
+    updateCrumb();
+  };
+}
+
 // ------------------------------------------------------------------ başlık / durum
 function updateTitle() {
   $('#projTitle').innerHTML = '';
-  $('#projTitle').append(h('b', {}, S.project.name || 'Proje'), '  ', h('span', {}, S.path || '(kaydedilmedi)'));
+  $('#projTitle').append(h('b', { 'data-no-i18n': true }, S.project.name || 'Proje'), '  ',
+    S.path ? h('span', { 'data-no-i18n': true }, S.path) : h('span', {}, '(kaydedilmedi)'));
   const st = $('#status');
   st.textContent = S.dirty ? '● Kaydedilmedi' : '✓ Kayıtlı';
   st.classList.toggle('dirty', S.dirty);
@@ -203,7 +227,7 @@ function keyframeSelected() {
 
 // ------------------------------------------------------------------ dosya
 async function newProject() {
-  if (S.dirty && !confirm('Kaydedilmemiş değişiklikler kaybolacak. Devam?')) return;
+  if (S.dirty && !tConfirm('Kaydedilmemiş değişiklikler kaybolacak. Devam?')) return;
   let preset = '1080x1920', name = 'Yeni Proje', theme = '', dur = 10;
   const nameI = h('input', { type: 'text', value: name });
   modal('Yeni proje', h('div', {},
@@ -235,7 +259,7 @@ async function openProject() {
 }
 
 async function openPath(path) {
-  if (S.dirty && !confirm('Kaydedilmemiş değişiklikler kaybolacak. Devam?')) return;
+  if (S.dirty && !tConfirm('Kaydedilmemiş değişiklikler kaybolacak. Devam?')) return;
   const st = await api.safe(api.post('/api/open', { path }), 'Açılamadı');
   if (st) { await loadState(st); zoomFit(); toast('Açıldı: ' + st.path, 'ok', [], 1500); checkAutosave(); }
 }

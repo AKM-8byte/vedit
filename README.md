@@ -35,6 +35,8 @@ Claude script yazar → vedit SDK → .vedit.json proje → arayüzde düzenle �
   sadece değişen parçalar yeniden render edilir (cetvelin altındaki yeşil/kırmızı çubuk).
 - **Claude ile canlı çalışma**: Claude proje dosyasını değiştirirse üstte "Yeniden yükle" çıkar.
   `inbox/` klasörüne düşen yeni medya için bildirim gelir.
+- **Dil**: üst çubuktaki seçiciden Türkçe / English. Seçim saklanır. Yeni dil eklemek için
+  `ui/js/lang/en.js` örneğindeki gibi bir sözlük yazıp `ui/js/i18n.js` içindeki `LANGS`'e ekle.
 - Kısayollar: Space, ←/→ (Shift: 1 sn), Home/End, C, Del, Ctrl+D/C/V/Z/Y/S/E, K, +/−, 1/2/3 (mod).
 
 ## Komut satırı

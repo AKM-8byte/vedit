@@ -3,6 +3,7 @@ import { S, on, emit, comp, compSize, compDuration, selectedLayer, commit, live,
   toggleKeyframe, keyframeAt, isAnimated, hasKeyframes, localT, setKeyframe, valueAt, ease, EASE, fps } from './state.js';
 import { h, row, section, numberInput, colorInput, select, toast, round } from './ui.js';
 import * as api from './api.js';
+import { tPrompt, getLang } from './i18n.js';
 
 let root;
 let focusProp = null; // keyframe listesi gösterilen prop
@@ -13,6 +14,7 @@ export function initInspector() {
   on('project', (d) => { if (!d?.live) render(); });
   on('time', (d) => { if (!d?.fromPlayback) softUpdate(); });
   on('mode', render);
+  on('lang', render);
   on('focusInspector', () => root.querySelector('textarea, input')?.focus());
   on('addKeyframeAt', ({ layer, prop, t }) => {
     setKeyframe(layer, prop, t, valueAt(layer.props[prop], t));
@@ -45,7 +47,7 @@ function kfButton(layer, name) {
   btn.oncontextmenu = (e) => {
     e.preventDefault();
     const cur = isExpr ? v.expr : String(propValue(layer, name) ?? 0);
-    const expr = window.prompt('İfade (t = katman içi saniye). Örn: sin(t*2)*20 + 540', cur);
+    const expr = tPrompt('İfade (t = katman içi saniye). Örn: sin(t*2)*20 + 540', cur);
     if (expr !== null) { layer.props[name] = expr.trim() ? { expr: expr.trim() } : 0; change('İfade'); }
   };
   return btn;
@@ -120,8 +122,12 @@ function compPanel() {
     row('Dosya', (() => { const i = h('input', { type: 'text', value: p.brand || '', placeholder: 'brand/brand.json' }); i.onchange = () => { p.brand = i.value || null; change('Marka'); }; return i; })()),
     h('div', { class: 'hint' }, 'Renklerde "brand.primary", "brand.accent" gibi adlar kullanılabilir.'),
   ], { collapsed: true }));
-  out.push(section('İpuçları', [h('div', { class: 'hint', html:
-    '<b>Space</b> oynat · <b>←/→</b> kare · <b>C</b> kes · <b>Del</b> sil · <b>Ctrl+D</b> çoğalt · <b>K</b> keyframe · ' +
+  out.push(section('İpuçları', [h('div', { class: 'hint', html: getLang() === 'en'
+    ? '<b>Space</b> play · <b>←/→</b> frame · <b>C</b> split · <b>Del</b> delete · <b>Ctrl+D</b> duplicate · <b>K</b> keyframe · ' +
+      '<b>Ctrl+Z/Y</b> undo/redo · <b>Ctrl+S</b> save · <b>Ctrl+wheel</b> timeline zoom · ' +
+      'Click a layer in the preview → select, drag → move, corner → scale, top dot → rotate (Shift: 15°).' +
+      '<br>Right-click the ◇ button → write an expression (expr).'
+    : '<b>Space</b> oynat · <b>←/→</b> kare · <b>C</b> kes · <b>Del</b> sil · <b>Ctrl+D</b> çoğalt · <b>K</b> keyframe · ' +
     '<b>Ctrl+Z/Y</b> geri al/yinele · <b>Ctrl+S</b> kaydet · <b>Ctrl+tekerlek</b> timeline zoom · ' +
     'Önizlemede katmana tıkla → seç, sürükle → taşı, köşe → ölçek, üst nokta → döndür (Shift: 15°).' +
     '<br>◇ düğmesine sağ tıkla → ifade (expr) yaz.' })], { collapsed: false }));
@@ -203,7 +209,7 @@ function paramControls(schema, values, onChange, layer = null) {
 // ------------------------------------------------------------------ katman paneli
 function layerPanel(l) {
   const out = [];
-  out.push(section(`${l.name}`, [
+  out.push(section(h('span', { 'data-no-i18n': true }, l.name), [
     row('Ad', (() => { const i = h('input', { type: 'text', value: l.name }); i.onchange = () => { l.name = i.value; change('Ad'); }; return i; })()),
     row('Başlangıç', numberInput(round(l.start, 3), (v) => { l.start = Math.max(0, v); change('Başlangıç'); }, { step: 1 / fps(), min: 0 })),
     row('Süre', numberInput(round(l.duration, 3), (v) => { l.duration = Math.max(1 / fps(), v); change('Süre'); }, { step: 1 / fps(), min: 0.01 })),
@@ -483,7 +489,7 @@ export async function applyPreset(l, name) {
 function transitionSection(l) {
   const opts = [['', 'Yok'], ['theme', 'Temanın geçişi'], ...Object.entries(S.lib.transitions)];
   const items = [];
-  for (const [key, label] of [['transition_in', 'Giriş'], ['transition_out', 'Çıkış']]) {
+  for (const [key, label] of [['transition_in', 'Giriş geçişi'], ['transition_out', 'Çıkış geçişi']]) {
     const tr = l[key];
     items.push(row(label, select(opts, tr === 'theme' ? 'theme' : tr?.type ?? '', (v) => {
       l[key] = !v ? null : v === 'theme' ? 'theme' : { type: v, duration: tr?.duration ?? 0.5 };

@@ -132,7 +132,7 @@ export function row(label, control, extra = null, title = '') {
 
 export function section(title, children, { collapsed = false, actions = null, key = '' } = {}) {
   const store = window.__sections || (window.__sections = {});
-  const k = key || title;
+  const k = key || (typeof title === 'string' ? title : title.textContent);
   const isCol = store[k] ?? collapsed;
   const sec = h('div', { class: 'section' + (isCol ? ' collapsed' : '') });
   const head = h('h4', { onclick: (e) => { if (e.target.closest('button')) return; sec.classList.toggle('collapsed'); store[k] = sec.classList.contains('collapsed'); } },

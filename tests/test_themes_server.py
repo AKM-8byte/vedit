@@ -38,6 +38,16 @@ def client():
     return TestClient(app)
 
 
+def test_settings_language(client):
+    before = client.get("/api/settings").json()
+    try:
+        assert client.put("/api/settings", json={"lang": "en", "evil": 1}).json()["lang"] == "en"
+        got = client.get("/api/settings").json()
+        assert got["lang"] == "en" and "evil" not in got
+    finally:
+        client.put("/api/settings", json={"lang": before.get("lang", "tr")})
+
+
 def test_server_roundtrip(client, tmp_path):
     lib = client.get("/api/library").json()
     assert lib["presets"] and lib["themes"] and lib["effects"]

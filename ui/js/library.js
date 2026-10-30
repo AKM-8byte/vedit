@@ -3,6 +3,7 @@ import { S, on, emit, comp, compSize, compDuration, selectedLayer, commit, newLa
 import { h, toast, modal, row, numberInput, colorInput } from './ui.js';
 import * as api from './api.js';
 import { applyPreset } from './inspector.js';
+import { tPrompt, t as tr, getLang } from './i18n.js';
 
 const TABS = [
   ['media', 'Medya'], ['add', 'Ekle'], ['anim', 'Animasyon'], ['tpl', 'Şablon'],
@@ -21,6 +22,7 @@ export function initLibrary() {
   }
   on('mode', () => { if (S.mode === 'create' && tab === 'media') setTab('anim'); else if (S.mode === 'edit' && tab === 'anim') setTab('media'); });
   on('select', () => { if (['anim', 'fx', 'trans'].includes(tab)) render(); });
+  on('lang', () => render());
   on('dropItem', ({ item, t, track }) => addItem(item, t, track));
   setInterval(pollInbox, 3000);
   pollInbox();
@@ -59,7 +61,7 @@ async function renderMedia(b) {
     const ico = h('div', { class: 'ico' }, e.kind === 'video' || e.kind === 'image' ? '' : ICON[e.kind] || '·');
     if (e.kind === 'video' || e.kind === 'image') ico.style.backgroundImage = `url("/api/media/thumb?${api.q({ path: e.path, t: 0.5, w: 100 })}")`;
     const item = h('div', { class: 'file' + (Date.now() / 1000 - e.mtime < 120 && e.kind !== 'dir' ? ' new' : ''), title: e.path, draggable: e.kind !== 'dir' && e.kind !== 'project' },
-      ico, h('span', { class: 'nm' }, e.name), h('span', { class: 'meta' }, e.kind === 'dir' ? '' : fmtSize(e.size)));
+      ico, h('span', { class: 'nm', 'data-no-i18n': true }, e.name), h('span', { class: 'meta' }, e.kind === 'dir' ? '' : fmtSize(e.size)));
     item.addEventListener('dblclick', () => {
       if (e.kind === 'dir') { dir = e.path; render(); }
       else if (e.kind === 'project') emit('openProject', e.path);
@@ -80,7 +82,7 @@ async function importDialog() {
   const res = await api.safe(api.post('/api/dialog', { kind: 'open', filters: ['Medya (*.mp4;*.mov;*.webm;*.mkv;*.gif;*.png;*.jpg;*.jpeg;*.webp;*.mp3;*.wav;*.m4a;*.ogg;*.py)', 'Tüm dosyalar (*.*)'] }));
   if (!res) return;
   if (!res.available) {
-    const path = window.prompt('Dosya yolu (proje köküne göre ya da tam yol):', 'assets/');
+    const path = tPrompt('Dosya yolu (proje köküne göre ya da tam yol):', 'assets/');
     if (path) addItem({ kind: 'file', path, type: guessType(path) }, null, null);
     return;
   }
@@ -208,9 +210,9 @@ function renderAdd(b) {
 async function srtImport() {
   const res = await api.safe(api.post('/api/dialog', { kind: 'open', filters: ['Altyazı (*.srt)'] }));
   let path = res?.paths?.[0];
-  if (res && !res.available) path = window.prompt('SRT dosya yolu:', 'assets/altyazi.srt');
+  if (res && !res.available) path = tPrompt('SRT dosya yolu:', 'assets/altyazi.srt');
   if (!path) return;
-  const style = window.prompt('Stil: caption (kelime pop) / highlight (karaoke) / plain (kutulu)', 'caption') || 'caption';
+  const style = tPrompt('Stil: caption (kelime pop) / highlight (karaoke) / plain (kutulu)', 'caption') || 'caption';
   const out = await api.safe(api.post('/api/srt/import', { path, style, comp: S.compId }), 'SRT');
   if (!out) return;
   S.project = out.project;
@@ -219,7 +221,7 @@ async function srtImport() {
 }
 
 async function srtExport() {
-  const path = window.prompt('Kayıt yolu:', 'exports/altyazi.srt');
+  const path = tPrompt('Kayıt yolu:', 'exports/altyazi.srt');
   if (!path) return;
   const out = await api.safe(api.post('/api/srt/export', { path, comp: S.compId }), 'SRT');
   if (out) toast(`${out.count} satır yazıldı: ${out.path}`, 'ok');
@@ -308,7 +310,7 @@ function renderTheme(b) {
   b.append(h('div', { class: 'card' + (!cur ? ' active' : ''), onclick: () => setTheme(null) }, h('h5', {}, 'Tema yok'), h('p', {}, 'Her şeyi elle ayarla.')));
   for (const t of S.lib.themes) {
     const st = THEME_STYLE[t.name] || { background: t.preview_bg };
-    const sw = h('div', { class: 'swatch', style: { background: st.background, color: st.color, fontFamily: st.font, textShadow: st.textShadow, letterSpacing: st.letterSpacing } }, t.label.toUpperCase());
+    const sw = h('div', { class: 'swatch', style: { background: st.background, color: st.color, fontFamily: st.font, textShadow: st.textShadow, letterSpacing: st.letterSpacing } }, tr(t.label).toLocaleUpperCase(getLang() === 'tr' ? 'tr' : 'en'));
     b.append(h('div', { class: 'card' + (cur === t.name ? ' active' : ''), onclick: () => setTheme(t.name) }, sw, h('h5', {}, t.label), h('p', {}, t.description)));
   }
   b.append(h('div', { class: 'hint' }, 'Tema; "Tema arka planı" seçili sahnelerin arka planını, video/görsel filtrelerini, son kare efektini ve font/renk belirtilmemiş yazıları değiştirir. Ayarları: hiçbir şey seçili değilken sağ panel → Tema.'));
