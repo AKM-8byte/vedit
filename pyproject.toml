@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vedit"
+version = "0.1.0"
+description = "Claude ile üretilen videolar için düzenleme ve animasyon aracı"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Ahmet Kayra" }]
+readme = "README.md"
+dependencies = [
+    "pillow>=10.1",
+    "numpy>=1.24",
+    "moviepy>=2.0",
+    "imageio-ffmpeg>=0.5",
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "pywebview>=5.0",
+]
+
+[project.optional-dependencies]
+mcp = ["mcp>=1.0"]
+dev = ["pytest", "httpx"]
+
+[project.scripts]
+vedit = "vedit.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["vedit*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

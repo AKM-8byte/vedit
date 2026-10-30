@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VEdit</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand">▶ V<span>Edit</span></div>
+    <div class="tb-group">
+      <button class="btn ghost" data-act="new" title="Yeni proje (Ctrl+N)">Yeni</button>
+      <button class="btn ghost" data-act="open" title="Proje aç (Ctrl+O)">Aç</button>
+      <button class="btn ghost" data-act="save" title="Kaydet (Ctrl+S)">Kaydet</button>
+      <button class="btn ghost" data-act="saveas" title="Farklı kaydet (Ctrl+Shift+S)">Farklı kaydet</button>
+    </div>
+    <div class="tb-group">
+      <button class="btn ghost" data-act="undo" title="Geri al (Ctrl+Z)">↶</button>
+      <button class="btn ghost" data-act="redo" title="Yinele (Ctrl+Y)">↷</button>
+    </div>
+    <div class="modes" id="modes">
+      <button data-mode="edit" class="active" title="Kesme, birleştirme, ses, yazı">🎬 Düzenle</button>
+      <button data-mode="create" title="Keyframe, hazır animasyon, şablon">✨ Oluştur</button>
+      <button data-mode="code" title="JSON, kalite kontrol, kare panosu">🧩 Kod</button>
+    </div>
+    <div id="projTitle"></div>
+    <div id="status"></div>
+    <button class="btn ghost" data-act="about" title="Hakkında">ⓘ</button>
+    <button class="btn primary" data-act="export" title="Dışa aktar (Ctrl+E)">Dışa aktar</button>
+  </header>
+  <div id="banner" hidden></div>
+
+  <aside id="left">
+    <div class="tabs" id="libtabs"></div>
+    <div class="tab-body" id="libbody"></div>
+  </aside>
+
+  <main id="center">
+    <div id="viewer">
+      <div id="stage">
+        <div id="screen">
+          <img id="frameImg" alt="">
+          <video id="video" playsinline hidden></video>
+          <canvas id="overlay"></canvas>
+        </div>
+        <div id="busy" hidden><span id="busyText">Hazırlanıyor</span><div class="bar"><i id="busyBar"></i></div></div>
+        <div id="warnbox"></div>
+      </div>
+      <div id="viewbar">
+        <button class="icon-btn" data-act="home" title="Başa (Home)">⏮</button>
+        <button class="icon-btn" data-act="prev" title="Önceki kare (←)">◀</button>
+        <button class="icon-btn play" data-act="play" id="playBtn" title="Oynat / durdur (Space)">▶</button>
+        <button class="icon-btn" data-act="next" title="Sonraki kare (→)">▶</button>
+        <button class="icon-btn" data-act="end" title="Sona (End)">⏭</button>
+        <div class="time" id="timecode">00:00.00</div>
+        <div class="sp"></div>
+        <button class="icon-btn" id="loopBtn" title="Döngü">🔁</button>
+        <button class="icon-btn on" id="safeBtn" title="Güvenli alan">▣</button>
+        <button class="icon-btn" id="gridBtn" title="Izgara">#</button>
+        <select id="qualitySel" title="Önizleme kalitesi" style="width:auto">
+          <option value="0.25">Düşük</option>
+          <option value="0.5" selected>Orta</option>
+          <option value="1">Tam</option>
+        </select>
+      </div>
+    </div>
+    <div id="codeview" hidden></div>
+  </main>
+
+  <aside id="right">
+    <div class="tabs"><button class="active">Özellikler</button></div>
+    <div id="inspector"></div>
+  </aside>
+
+  <div id="splitter"></div>
+  <section id="timelineWrap">
+    <div id="tlbar">
+      <div class="crumb" id="crumb"></div>
+      <button class="btn small" data-act="split" title="Oynatma kafasından kes (C)">✂ Kes</button>
+      <button class="btn small" data-act="duplicate" title="Çoğalt (Ctrl+D)">⧉ Çoğalt</button>
+      <button class="btn small danger" data-act="delete" title="Sil (Del)">🗑 Sil</button>
+      <button class="btn small" data-act="keyframe" title="Konum/ölçek/dönme/opaklık keyframe (K)">◆ Keyframe</button>
+      <div class="sp"></div>
+      <label><input type="checkbox" id="snapChk" checked> Mıknatıs</label>
+      <label>Süre <input type="number" id="durInput" step="0.5" min="0.5" style="width:70px"></label>
+      <button class="btn small" data-act="zoomout" title="Uzaklaş (-)">−</button>
+      <button class="btn small" data-act="zoomfit" title="Sığdır">⇔</button>
+      <button class="btn small" data-act="zoomin" title="Yakınlaş (+)">+</button>
+    </div>
+    <div id="tl"><canvas id="tlCanvas"></canvas></div>
+  </section>
+</div>
+<div id="modal" hidden></div>
+<div id="toasts"></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

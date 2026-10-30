@@ -1,0 +1,19 @@
+{
+  "name": "Kanalım",
+  "colors": {
+    "primary": "#ff375f",
+    "secondary": "#0a84ff",
+    "accent": "#ffd60a",
+    "background": "#0f0f1a",
+    "text": "#ffffff",
+    "muted": "#a1a1aa"
+  },
+  "fonts": {
+    "heading": "segoe black",
+    "body": "segoe ui"
+  },
+  "logo": "brand/logo.png",
+  "default_size": [1080, 1920],
+  "default_theme": null,
+  "notes": "Bu dosyayı kendi markana göre düzenle: renkler, fontlar (brand/fonts/ içine .ttf koyabilirsin), logo."
+}

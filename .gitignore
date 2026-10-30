@@ -1,0 +1,21 @@
+# Python / araçlar
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+*.tmp
+
+# VEdit cache ve çıktıları
+.vedit_cache/
+exports/
+
+# Kişisel çalışma alanı (kendi projelerin ve medyan herkese açık depoya girmesin)
+projects/*
+!projects/.gitkeep
+inbox/*
+!inbox/.gitkeep
+assets/*
+!assets/.gitkeep
+
+# Üretilen kare panoları
+*_sheet.png

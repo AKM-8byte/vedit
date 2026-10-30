@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "vedit": {
+      "command": ".venv/Scripts/vedit.exe",
+      "args": ["mcp"]
+    }
+  }
+}

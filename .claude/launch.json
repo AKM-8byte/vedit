@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vedit",
+      "runtimeExecutable": ".venv/Scripts/vedit.exe",
+      "runtimeArgs": ["gui", "projects/demo_tanitim.vedit.json", "--serve", "--port", "8765"],
+      "port": 8765
+    }
+  ]
+}
